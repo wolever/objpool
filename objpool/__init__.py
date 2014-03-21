@@ -57,6 +57,16 @@ import logging
 log = logging.getLogger(__name__)
 
 
+class DummySemaphore(object):
+    _Semaphore__value = 0
+
+    def acquire(self, *args, **kwargs):
+        return True
+
+    def release(self):
+        pass
+
+
 class ObjectPoolError(Exception):
     pass
 
@@ -120,7 +130,7 @@ class ObjectPool(object):
             size = 0
 
         try:
-            self.size = int(size)
+            size = int(size)
             assert size >= 0
         except:
             raise ValueError("Invalid size for pool (non-negative integer "
@@ -130,7 +140,12 @@ class ObjectPool(object):
         self._verify_func = verify
         self._cleanup_func = cleanup
 
-        self._semaphore = Semaphore(size)  # Pool grows up to size limit
+        if size > 0:
+            self._semaphore = Semaphore(size)
+        else:
+            self._semaphore = DummySemaphore()
+        self.size = size
+
         self._mutex = Lock()  # Protect shared _set oject
         self._set = set()
         log.debug("Initialized pool %r", self)
