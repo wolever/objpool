@@ -117,7 +117,7 @@ class ObjectPool(object):
     def __init__(self, size=None, create=None, verify=None, cleanup=None):
         self._pool_pid = getpid()
         if size is None:
-            self.size = 0
+            size = 0
 
         try:
             self.size = int(size)
