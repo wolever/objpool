@@ -116,11 +116,14 @@ class ObjectPool(object):
     """
     def __init__(self, size=None):
         self._pool_pid = getpid()
+        if size is None:
+            size = 0
+
         try:
             self.size = int(size)
-            assert size >= 1
+            assert size >= 0
         except:
-            raise ValueError("Invalid size for pool (positive integer "
+            raise ValueError("Invalid size for pool (non-negative integer "
                              "required): %r" % (size,))
 
         self._semaphore = Semaphore(size)  # Pool grows up to size limit
