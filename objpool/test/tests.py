@@ -107,12 +107,20 @@ class NumbersPool(ObjectPool):
 
 
 class ObjectPoolTestCase(unittest.TestCase):
-    def test_create_pool_requires_size(self):
+    def test_create_pool_invalid_sizes(self):
         """Test __init__() requires valid size argument"""
-        self.assertRaises(ValueError, ObjectPool)
-        self.assertRaises(ValueError, ObjectPool, size="size10")
-        self.assertRaises(ValueError, ObjectPool, size=0)
         self.assertRaises(ValueError, ObjectPool, size=-1)
+        self.assertRaises(ValueError, ObjectPool, size="size10")
+
+    def test_create_pool_valid_sizes(self):
+        ObjectPool(size=0)
+        ObjectPool(size=None)
+
+    def test_unbounded_pool(self):
+        pool = ObjectPool(size=0, create=[1,2,3].pop)
+        self.assertEqual(pool.pool_get(), 3)
+        self.assertEqual(pool.pool_get(), 2)
+        self.assertEqual(pool.pool_get(), 1)
 
     def test_create_pool(self):
         """Test pool creation works"""
